@@ -1,15 +1,11 @@
 package staticanalysis.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -20,8 +16,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jface.text.Document;
 
 public class MyVisitor extends ASTVisitor {
-	List<MethodInvocation> methodsInvo = new ArrayList<MethodInvocation>();
-	List<FieldDeclaration> fields = new ArrayList<FieldDeclaration>();
+	
 	private Document doc;
 	
 	public MyVisitor(Document doc) {
@@ -30,30 +25,32 @@ public class MyVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
-		IVariableBinding binding = fragment.resolveBinding();
-		
-		searchVariable(binding);
+		if (isList(node.getType())) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
+			IVariableBinding binding = fragment.resolveBinding();
+			
+			searchVariable(binding, createVariable(node, binding));
+		}
 		return super.visit(node);
 	}
 	
 	@Override
 	public boolean visit(FieldDeclaration node) {
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
-		IVariableBinding binding = fragment.resolveBinding();
-		
-		searchVariable(binding);
+		if (isList(node.getType())) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
+			IVariableBinding binding = fragment.resolveBinding();
+			searchVariable(binding, createVariable(node, binding));
+		}
 		return super.visit(node);
 	}
-	
-	private void searchVariable(IVariableBinding binding) {
+
+	private void searchVariable(IVariableBinding binding, Variable variable) {
 		SearchEngine se = new SearchEngine();
-		System.out.println("Field");
 		SearchPattern pattern = SearchPattern.createPattern(binding.getJavaElement(),
 				IJavaSearchConstants.REFERENCES);
 		IJavaSearchScope scope = SearchEngine
 				.createWorkspaceScope();
-		MySearchRequestor requestor = new MySearchRequestor(doc);
+		MySearchRequestor requestor = new MySearchRequestor(doc, variable);
 		try {
 			se.search(pattern, new SearchParticipant[] { SearchEngine
 					.getDefaultSearchParticipant() }, scope, requestor,
@@ -62,5 +59,42 @@ public class MyVisitor extends ASTVisitor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private boolean isList(Type node) {
+		if ((node.toString().contains("List")) || (node.toString().contains("ArrayList")) || (node.toString().contains("LinkedList"))) {
+			return true;
+		} 
+		return false;
+	}
+	
+	private Variable createVariable(VariableDeclarationStatement node,
+			IVariableBinding binding) {
+		Variable variable;
+		
+		if (node.toString().contains("new ArrayList")) {
+			variable = new Variable(binding.getName(), "ArrayList");
+		} else if (node.toString().contains("new LinkedList")) {
+			variable = new Variable(binding.getName(), "LinkedList");
+		} else {
+			variable = new Variable(binding.getName());
+		}
+		
+		return variable;
+	}
+	
+	private Variable createVariable(FieldDeclaration node,
+			IVariableBinding binding) {
+		Variable variable;
+		
+		if (node.toString().contains("new ArrayList")) {
+			variable = new Variable(binding.getName(), "ArrayList");
+		} else if (node.toString().contains("new LinkedList")) {
+			variable = new Variable(binding.getName(), "LinkedList");
+		} else {
+			variable = new Variable(binding.getName());
+		}
+		
+		return variable;
 	}
 }
