@@ -24,6 +24,7 @@ public class MySearchRequestor extends SearchRequestor {
 	
 	@Override
 	public void endReporting() {
+		Result.getInstance().addVariable(variable);
 		super.endReporting();
 	}
 	
@@ -51,9 +52,9 @@ public class MySearchRequestor extends SearchRequestor {
 					variable.incrementNotConstantOperations();
 				}
 			} else if (variable.getTypeInstantiated().equals("LinkedList")) {
-				if (codeLine.contains(".add(") || codeLine.contains(".remove(") ||  codeLine.contains(".iterator(") || codeLine.contains(".listIterator(")) {
+				if (codeLine.contains(".add(") || codeLine.contains(".remove(") ||  codeLine.contains(".iterator(") || codeLine.contains(".listIterator(") || codeLine.contains(".isEmpty(")) {
 					variable.incrementConstantOperations();
-				} else if (codeLine.contains(".get(") || codeLine.contains(".remove(")) {
+				} else if (codeLine.contains(".get(") || codeLine.contains(".set(")) {
 					variable.incrementNotConstantOperations();
 				}
 			}

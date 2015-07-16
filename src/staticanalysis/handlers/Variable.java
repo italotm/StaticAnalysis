@@ -2,17 +2,21 @@ package staticanalysis.handlers;
 
 public class Variable {
 	
-	String name, typeInstantiated;
+	String name, typeInstantiated, type, projectName;
 	int constantOperations, notConstantOperations;
 	
-	public Variable (String name) {
+	public Variable (String name, String type, String projectName) {
 		this.name = name;
+		this.type = type;
+		this.projectName = projectName;
 		this.constantOperations = 0;
 		this.notConstantOperations = 0;
 	}
 	
-	public Variable (String name, String typeInstantiated) {
+	public Variable (String name, String type, String projectName, String typeInstantiated) {
 		this.name = name;
+		this.type = type;
+		this.projectName = projectName;
 		this.typeInstantiated = typeInstantiated;
 		this.constantOperations = 0;
 		this.notConstantOperations = 0;
@@ -44,5 +48,13 @@ public class Variable {
 	
 	public void incrementNotConstantOperations() {
 		notConstantOperations++;
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public String getProjectName() {
+		return projectName;
 	}
 }

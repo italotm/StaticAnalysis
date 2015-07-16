@@ -87,27 +87,24 @@ public class SampleHandler extends AbstractHandler {
 			// K_BINARY would include also included JARS, e.g.
 			// rt.jar
 			if (mypackage.getKind() == IPackageFragmentRoot.K_SOURCE) {
-				createAST(mypackage);
+				createAST(mypackage, javaProject.getElementName());
 			}
 
 		}
 	}
 
-	private void createAST(IPackageFragment mypackage)
+	private void createAST(IPackageFragment mypackage, String projectName)
 			throws JavaModelException {
 
 		for (ICompilationUnit unit : mypackage.getCompilationUnits()) {
 			// now create the AST for the ICompilationUnits
 			CompilationUnit parse = parse(unit);
 			Document doc = new Document(unit.getSource());
-			MyVisitor visitor = new MyVisitor(doc);
+			MyVisitor visitor = new MyVisitor(doc, projectName);
 			parse.accept(visitor);
-
-			/*for (FieldDeclaration field : visitor.getFields()) {
-				System.out.println("Field type: " + field.getType());
-
-			}*/
 		}
+		
+		Result.getInstance().writeCSV();
 	}
 
 	private static CompilationUnit parse(ICompilationUnit unit) {

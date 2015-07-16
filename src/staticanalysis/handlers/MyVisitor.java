@@ -4,7 +4,11 @@ package staticanalysis.handlers;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -18,9 +22,11 @@ import org.eclipse.jface.text.Document;
 public class MyVisitor extends ASTVisitor {
 	
 	private Document doc;
+	private String projectName;
 	
-	public MyVisitor(Document doc) {
+	public MyVisitor(Document doc, String projectName) {
 		this.doc = doc;
+		this.projectName = projectName;
 	}
 
 	@Override
@@ -73,11 +79,11 @@ public class MyVisitor extends ASTVisitor {
 		Variable variable;
 		
 		if (node.toString().contains("new ArrayList")) {
-			variable = new Variable(binding.getName(), "ArrayList");
+			variable = new Variable(binding.getName(), "local variable", projectName, "ArrayList");
 		} else if (node.toString().contains("new LinkedList")) {
-			variable = new Variable(binding.getName(), "LinkedList");
+			variable = new Variable(binding.getName(), "local variable", projectName, "LinkedList");
 		} else {
-			variable = new Variable(binding.getName());
+			variable = new Variable(binding.getName(), "local variable", projectName);
 		}
 		
 		return variable;
@@ -88,11 +94,11 @@ public class MyVisitor extends ASTVisitor {
 		Variable variable;
 		
 		if (node.toString().contains("new ArrayList")) {
-			variable = new Variable(binding.getName(), "ArrayList");
+			variable = new Variable(binding.getName(), "field", projectName, "ArrayList");
 		} else if (node.toString().contains("new LinkedList")) {
-			variable = new Variable(binding.getName(), "LinkedList");
+			variable = new Variable(binding.getName(), "field", projectName, "LinkedList");
 		} else {
-			variable = new Variable(binding.getName());
+			variable = new Variable(binding.getName(), "field", projectName);
 		}
 		
 		return variable;
