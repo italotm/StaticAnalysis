@@ -4,6 +4,7 @@ public class Variable {
 	
 	String name, typeInstantiated, type, projectName;
 	int constantOperations, notConstantOperations;
+	boolean sync;
 	
 	public Variable (String name, String type, String projectName) {
 		this.name = name;
@@ -56,5 +57,13 @@ public class Variable {
 	
 	public String getProjectName() {
 		return projectName;
+	}
+	
+	public boolean getSync() {
+		return sync;
+	}
+	
+	public void setSync(boolean sync) {
+		this.sync = sync;
 	}
 }

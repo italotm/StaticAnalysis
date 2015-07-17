@@ -86,6 +86,10 @@ public class MyVisitor extends ASTVisitor {
 			variable = new Variable(binding.getName(), "local variable", projectName);
 		}
 		
+		if (node.toString().contains("synchronizedList")) {
+			variable.setSync(true);
+		}
+		
 		return variable;
 	}
 	
@@ -99,6 +103,10 @@ public class MyVisitor extends ASTVisitor {
 			variable = new Variable(binding.getName(), "field", projectName, "LinkedList");
 		} else {
 			variable = new Variable(binding.getName(), "field", projectName);
+		}
+		
+		if (node.toString().contains("synchronizedList")) {
+			variable.setSync(true);
 		}
 		
 		return variable;

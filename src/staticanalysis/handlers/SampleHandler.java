@@ -9,7 +9,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
@@ -21,14 +20,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jface.text.Document;
-
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -63,6 +60,9 @@ public class SampleHandler extends AbstractHandler {
 				e.printStackTrace();
 			}
 		}
+		
+		Result.getInstance().writeCSV();
+		
 		return null;
 	}
 
@@ -88,9 +88,74 @@ public class SampleHandler extends AbstractHandler {
 			// rt.jar
 			if (mypackage.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				createAST(mypackage, javaProject.getElementName());
+				iCompilationUnitInfo(mypackage, javaProject.getElementName());
 			}
-
 		}
+	}
+
+	private void iCompilationUnitInfo(IPackageFragment mypackage, String projectName)
+			throws JavaModelException {
+		for (ICompilationUnit unit : mypackage.getCompilationUnits()) {
+			iMethods(unit, projectName);
+		}
+	}
+
+	private void iMethods(ICompilationUnit unit, String projectName) throws JavaModelException {
+		IType[] allTypes = unit.getAllTypes();
+		Document doc = new Document(unit.getSource());
+		for (IType type : allTypes) {
+			try {
+				iMethodDetails(type, doc, projectName);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void iMethodDetails(IType type, Document doc, String projectName) throws CoreException {
+		IMethod[] methods = type.getMethods();
+
+		for (IMethod method : methods) {
+			for (ILocalVariable ilocalVariable : method.getParameters()) {
+				Variable variable = createVariable(ilocalVariable, doc, projectName);
+				if (variable != null) {
+					SearchEngine se = new SearchEngine();
+					SearchPattern pattern = SearchPattern.createPattern(ilocalVariable,
+							IJavaSearchConstants.REFERENCES);
+					IJavaSearchScope scope = SearchEngine
+							.createWorkspaceScope();
+					MySearchRequestor requestor = new MySearchRequestor(doc, variable);
+					try {
+						se.search(pattern, new SearchParticipant[] { SearchEngine
+								.getDefaultSearchParticipant() }, scope, requestor,
+								null);
+					} catch (CoreException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	private Variable createVariable(ILocalVariable ilocalVariable, Document doc, String projectName) {
+		Variable variable = null;
+		try {
+			if (ilocalVariable.getSource().contains("ArrayList")) {
+				variable = new Variable(ilocalVariable.getElementName(), "parameter", projectName, "ArrayList");
+			} else if (ilocalVariable.getSource().contains("LinkedList")) {
+				variable = new Variable(ilocalVariable.getElementName(), "parameter", projectName, "LinkedList");
+			}
+			
+			if (ilocalVariable.getSource().contains("synchronizedList")) {
+				variable.setSync(true);
+			}
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return variable;
 	}
 
 	private void createAST(IPackageFragment mypackage, String projectName)
@@ -103,8 +168,6 @@ public class SampleHandler extends AbstractHandler {
 			MyVisitor visitor = new MyVisitor(doc, projectName);
 			parse.accept(visitor);
 		}
-		
-		Result.getInstance().writeCSV();
 	}
 
 	private static CompilationUnit parse(ICompilationUnit unit) {

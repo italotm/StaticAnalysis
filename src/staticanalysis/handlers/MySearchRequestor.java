@@ -45,6 +45,9 @@ public class MySearchRequestor extends SearchRequestor {
 
 	private void checkMethod(String codeLine) {
 		if (variable.getTypeInstantiated() != null) {
+			if (codeLine.contains("synchronizedList")) {
+				variable.setSync(true);
+			}
 			if (variable.getTypeInstantiated().equals("ArrayList")) {
 				if (codeLine.contains(".size(") || codeLine.contains(".isEmpty(") || codeLine.contains(".get(") || codeLine.contains(".set(") || codeLine.contains(".iterator(") || codeLine.contains(".listIterator(")) {
 					variable.incrementConstantOperations();
@@ -63,6 +66,9 @@ public class MySearchRequestor extends SearchRequestor {
 
 	private void checkType(String codeLine) {
 		if (variable.getTypeInstantiated() == null) {
+			if (codeLine.contains("synchronizedList")) {
+				variable.setSync(true);
+			}
 			if (codeLine.contains("new ArrayList")) {
 				variable.setTypeInstantiated("ArrayList");
 			} else if (codeLine.contains("new LinkedList")) {

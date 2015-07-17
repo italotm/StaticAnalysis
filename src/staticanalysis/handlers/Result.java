@@ -31,9 +31,9 @@ public class Result {
     	PrintWriter writer;
 		try {
 			writer = new PrintWriter("results.csv", "UTF-8");
-			writer.println("variable,type,implementation,const,n-const,Sistema");
+			writer.println("variable,type,implementation,const,n-const,sistema,syncronized");
 			for (Variable variable : list) {
-				writer.println(variable.getName()+","+variable.getType()+","+variable.getTypeInstantiated()+","+variable.getConstantOperations()+","+variable.getNotConstantOperations()+","+variable.getProjectName());
+				writer.println(variable.getName()+","+variable.getType()+","+variable.getTypeInstantiated()+","+variable.getConstantOperations()+","+variable.getNotConstantOperations()+","+variable.getProjectName()+","+variable.getSync());
 			}
 	    	writer.close();
 		} catch (FileNotFoundException e) {
