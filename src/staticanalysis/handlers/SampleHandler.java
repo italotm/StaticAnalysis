@@ -5,6 +5,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspace.ProjectOrder;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -70,13 +71,11 @@ public class SampleHandler extends AbstractHandler {
 			JavaModelException {
 		System.out.println("Working in project " + project.getName());
 		// check if we have a Java project
-		if (project.isNatureEnabled("org.eclipse.jdt.core.javanature")) {
-			IJavaProject javaProject = JavaCore.create(project);
-			printPackageInfos(javaProject);
-		}
+		IJavaProject javaProject = JavaCore.create(project);
+		printPackageInfos(javaProject, project.getName());
 	}
 
-	private void printPackageInfos(IJavaProject javaProject)
+	private void printPackageInfos(IJavaProject javaProject, String string)
 			throws JavaModelException {
 		IPackageFragment[] packages = javaProject.getPackageFragments();
 		for (IPackageFragment mypackage : packages) {

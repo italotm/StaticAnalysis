@@ -31,22 +31,37 @@ public class MyVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		if (isList(node.getType())) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
-			IVariableBinding binding = fragment.resolveBinding();
-			
-			searchVariable(binding, createVariable(node, binding));
+		try {
+			if (isList(node.getType())) {
+				VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
+				IVariableBinding binding = fragment.resolveBinding();
+				
+				if (binding != null) {
+					searchVariable(binding, createVariable(node, binding));
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
 		}
+		
 		return super.visit(node);
 	}
 	
 	@Override
 	public boolean visit(FieldDeclaration node) {
-		if (isList(node.getType())) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
-			IVariableBinding binding = fragment.resolveBinding();
-			searchVariable(binding, createVariable(node, binding));
+		try {
+			if (isList(node.getType())) {
+				VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.fragments().get(0);
+				IVariableBinding binding = fragment.resolveBinding();
+				
+				if (binding != null) {
+					searchVariable(binding, createVariable(node, binding));
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
 		}
+		
 		return super.visit(node);
 	}
 
@@ -63,7 +78,7 @@ public class MyVisitor extends ASTVisitor {
 					null);
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	

@@ -24,7 +24,9 @@ public class MySearchRequestor extends SearchRequestor {
 	
 	@Override
 	public void endReporting() {
-		Result.getInstance().addVariable(variable);
+		if (variable.getTypeInstantiated() != null) {
+			Result.getInstance().addVariable(variable);
+		}
 		super.endReporting();
 	}
 	
@@ -39,7 +41,7 @@ public class MySearchRequestor extends SearchRequestor {
 			checkMethod(codeLine);
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
