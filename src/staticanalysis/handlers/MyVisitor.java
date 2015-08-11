@@ -2,11 +2,14 @@ package staticanalysis.handlers;
 
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.Type;
@@ -44,6 +47,21 @@ public class MyVisitor extends ASTVisitor {
 			//e.printStackTrace();
 		}
 		
+		return super.visit(node);
+	}
+	
+	@Override
+	public boolean visit(MethodInvocation node) {
+		try {
+			if (node.toString().contains(".remove")) {
+				if (node.getParent().getParent().getParent() instanceof IfStatement) {
+					IfStatement ifNode = (IfStatement) node.getParent().getParent().getParent();
+					System.out.println(ifNode.getExpression());
+				}
+			}
+		} catch (Exception e) {
+			
+		}
 		return super.visit(node);
 	}
 	
